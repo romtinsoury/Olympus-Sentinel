@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olympus Hyper-Realistic Glass Sentinel</title>
+    <title>Olympus Hyper-Realistic Glass Sentinel & Telemetry Engine</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* ==========================================
+           1. RESET & BASE KERNEL STYLES
+           ========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
         
         body {
             background: url('/static/sanctuary.jpg') no-repeat center center fixed;
@@ -16,224 +24,544 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 0;
+            padding: 60px 0;
             overflow-x: hidden;
+            position: relative;
         }
 
         body::before {
-            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.25); z-index: -1; pointer-events: none;
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.2) 0%, rgba(2, 6, 23, 0.6) 100%);
+            z-index: -1;
+            pointer-events: none;
         }
 
-        /* ⚡️ EPIC 4-PIECE ZEUS FACE INTRO SPLASH */
+        /* ==========================================
+           2. PREMIUM 3D ZEUS MATRIX SPLASH SCREEN
+           ========================================== */
         #zeus-splash {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background: #020617;
-            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            perspective: 1500px; transition: opacity 0.6s ease-in-out, pointer-events 0.6s;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), pointer-events 1s;
+            perspective: 1400px;
         }
 
-        /* ظرف اصلی چهره ۴ تکه */
-        .zeus-logo-wrapper {
-            position: relative; width: 240px; height: 240px;
+        #auth-btn {
+            padding: 20px 48px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #020617;
+            background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+            border: 2px solid #fef08a;
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 100;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            box-shadow: 0 0 40px rgba(234, 179, 8, 0.5), inset 0 2px 4px rgba(255,255,255,0.4);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        #auth-btn:hover {
+            transform: scale(1.08);
+            border-color: #ffffff;
+            box-shadow: 0 0 60px #facc15, 0 0 120px rgba(250, 204, 21, 0.4);
+        }
+
+        .zeus-cube-3d {
+            position: relative;
+            width: 320px;
+            height: 320px;
             transform-style: preserve-3d;
+            display: none;
+            transform: rotateX(10deg);
         }
 
-        /* استایل مشترک تکه‌های چهره زئوس */
-        .zeus-quadrant {
-            position: absolute; width: 120px; height: 120px;
-            overflow: hidden;
+        /* استایل لایه‌های ۴ تکه بدون کشیدگی و سایز فشرده */
+        .zeus-piece {
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            opacity: 0;
+            filter: drop-shadow(0 0 25px rgba(234, 179, 8, 0.3));
         }
 
-        /* قرارگیری تکه‌ها در ۴ بخش مجزا */
-        .q-top-left { top: 0; left: 0; animation: mergeTopLeft 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-        .q-top-right { top: 0; right: 0; animation: mergeTopRight 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-        .q-bottom-left { bottom: 0; left: 0; animation: mergeBottomLeft 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-        .q-bottom-right { bottom: 0; right: 0; animation: mergeBottomRight 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-
-        /* تراز کردن جهت درست قالب صورت داخل لایه‌ها */
-        .q-top-right svg { transform: translateX(-120px); }
-        .q-bottom-left svg { transform: translateY(-120px); }
-        .q-bottom-right svg { transform: translate(-120px, -120px); }
-
-        /* انیمیشن پرتاب و چسبیدن پرسرعت ۴ تکه از دور به مرکز */
-        @keyframes mergeTopLeft {
-            0% { transform: translate3d(-1000px, -800px, 1200px) rotateX(45deg) rotateY(-45deg); opacity: 0; }
-            100% { transform: translate3d(0, 0, 0); opacity: 1; }
+        /* تراز کردن دقیق فایل‌های مجزای عکس بدون تغییر پوزیشن بک‌گراند */
+        .p-top-left { 
+            top: 0; 
+            left: 0; 
+            background-image: url('/static/zeus_top_left.png'); 
         }
-        @keyframes mergeTopRight {
-            0% { transform: translate3d(1000px, -800px, 1200px) rotateX(45deg) rotateY(45deg); opacity: 0; }
-            100% { transform: translate3d(0, 0, 0); opacity: 1; }
+        .p-top-right { 
+            top: 0; 
+            right: 0; 
+            background-image: url('/static/zeus_top_right.png'); 
         }
-        @keyframes mergeBottomLeft {
-            0% { transform: translate3d(-1000px, 800px, 1200px) rotateX(-45deg) rotateY(-45deg); opacity: 0; }
-            100% { transform: translate3d(0, 0, 0); opacity: 1; }
+        .p-bottom-left { 
+            bottom: 0; 
+            left: 0; 
+            background-image: url('/static/zeus_bottom_left.png'); 
         }
-        @keyframes mergeBottomRight {
-            0% { transform: translate3d(1000px, 800px, 1200px) rotateX(-45deg) rotateY(45deg); opacity: 0; }
-            100% { transform: translate3d(0, 0, 0); opacity: 1; }
+        .p-bottom-right { 
+            bottom: 0; 
+            right: 0; 
+            background-image: url('/static/zeus_bottom_right.png'); 
         }
 
-        /* ⚡️ انفجار بزرگ رعد و برق زرد رنگ */
+        /* 3D Animations Matrix */
+        .animate-p1 { animation: merge3DTopLeft 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-p2 { animation: merge3DTopRight 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-p3 { animation: merge3DBottomLeft 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-p4 { animation: merge3DBottomRight 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes merge3DTopLeft {
+            0% { transform: translate3d(-900px, -700px, -1200px) rotateX(120deg) rotateY(-90deg) rotateZ(-60deg); opacity: 0; }
+            100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+        }
+        @keyframes merge3DTopRight {
+            0% { transform: translate3d(900px, -700px, -1200px) rotateX(120deg) rotateY(90deg) rotateZ(60deg); opacity: 0; }
+            100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+        }
+        @keyframes merge3DBottomLeft {
+            0% { transform: translate3d(-900px, 700px, -1200px) rotateX(-120deg) rotateY(-90deg) rotateZ(60deg); opacity: 0; }
+            100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+        }
+        @keyframes merge3DBottomRight {
+            0% { transform: translate3d(900px, 700px, -1200px) rotateX(-120deg) rotateY(90deg) rotateZ(-60deg); opacity: 0; }
+            100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+        }
+
         .lightning-blast {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            width: 700px; height: 700px; pointer-events: none; z-index: 20; opacity: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 900px;
+            height: 900px;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
         }
-        .blast-active {
-            animation: bigExplosion 1.4s ease-out 1.4s forwards;
-        }
+        .blast-active { animation: bigExplosion 1.5s cubic-bezier(0.11, 0, 0, 1) forwards; }
 
         @keyframes bigExplosion {
-            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
-            10% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); background: rgba(254, 240, 138, 0.15); filter: drop-shadow(0 0 50px #eab308); }
-            15% { background: rgba(255, 255, 255, 0.4); opacity: 0.5; }
-            25% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 70px #facc15); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+            0% { transform: translate(-50%, -50%) scale(0.05); opacity: 0; }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); background: rgba(254, 240, 138, 0.3); filter: drop-shadow(0 0 80px #facc15); }
+            18% { background: rgba(255, 255, 255, 0.8); opacity: 0.8; }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); filter: drop-shadow(0 0 110px #eab308); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
         }
 
-        /* افکت فلش زدن پس‌زمینه در لحظه انفجار */
-        .flash-bg {
-            animation: screenFlash 0.4s ease-out 1.4s;
-        }
+        .flash-bg { animation: screenFlash 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
         @keyframes screenFlash {
             0%, 100% { background: #020617; }
-            50% { background: #fef08a; }
+            40% { background: #ffffff; }
+            60% { background: #fef08a; }
         }
 
         .splash-title {
-            margin-top: 60px; font-size: 1.4rem; font-weight: 800; color: #ffffff;
-            letter-spacing: 5px; text-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+            margin-top: 50px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #ffffff;
+            display: none;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            text-shadow: 0 0 25px rgba(234, 179, 8, 0.6), 0 0 50px rgba(234, 179, 8, 0.3);
         }
 
-        /* 🏛️ MAIN APP DASHBOARD INTERFACE */
-        header { text-align: center; margin-bottom: 50px; z-index: 2; }
+        /* ==========================================
+           3. CENTRAL HUB & HEADER ARCHITECTURE
+           ========================================== */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            z-index: 2;
+        }
+        
         header h1 {
-            font-size: 3rem; font-weight: 900; color: #ffffff;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 81, 255, 0.6); letter-spacing: 2px;
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 4px 25px rgba(0,0,0,0.9), 0 0 50px rgba(0,112,243,0.5), 0 0 100px rgba(0,229,255,0.3);
+            letter-spacing: 3px;
         }
-        header p { color: #e2e8f0; font-size: 1.1rem; margin-top: 10px; font-weight: 500; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7); }
-
+        
+        header p {
+            color: #cbd5e1;
+            font-size: 1.15rem;
+            margin-top: 14px;
+            font-weight: 600;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+        }
+        
+        /* ==========================================
+           4. GRID SYSTEM & PRISMATIC CARDS
+           ========================================== */
         .container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 40px;
-            width: 92%; max-width: 1400px; z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 45px;
+            width: 94%;
+            max-width: 1440px;
+            z-index: 2;
         }
-
+        
         .card {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 41, 59, 0.65) 100%);
-            border-radius: 16px; padding: 30px; border: 2px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.7) 100%);
+            border-radius: 20px;
+            padding: 35px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.1);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease;
         }
-        .card:hover {
-            transform: translateY(-12px); border-color: rgba(0, 230, 255, 0.9);
-            box-shadow: 0 45px 75px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 112, 243, 0.7), 0 0 70px rgba(0, 229, 255, 0.5), 0 0 100px rgba(139, 0, 255, 0.3);
-        }
-        .wide-card { grid-column: 1 / -1; }
-        h2 { color: #ffffff; font-size: 1.35rem; margin-bottom: 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.2); padding-bottom: 10px; font-weight: 800; letter-spacing: 0.5px; }
-        p { color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
-
-        /* Telemetry Gauges */
-        .charts-container { display: flex; justify-content: space-around; margin-top: 20px; gap: 20px; }
-        .chart-box { display: flex; flex-direction: column; align-items: center; }
-        .circle-chart {
-            width: 110px; height: 110px; border-radius: 50%; background: conic-gradient(#0051ff 0%, rgba(255, 255, 255, 0.1) 0%);
-            display: flex; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 8px 25px rgba(0, 81, 255, 0.4);
-        }
-        .circle-chart::before { content: ''; position: absolute; width: 86px; height: 86px; border-radius: 50%; background: linear-gradient(135deg, #111827 0%, #030712 100%); }
-        .chart-value { position: relative; z-index: 2; font-size: 1.3rem; color: #38bdf8; font-weight: 900; }
-        .chart-label { margin-top: 12px; font-size: 0.95rem; color: #e2e8f0; font-weight: 700; }
         
-        /* Poly Inputs */
+        .card:hover {
+            transform: translateY(-14px);
+            border-color: rgba(0, 229, 255, 0.85);
+            box-shadow: 0 50px 85px rgba(0,0,0,0.7), 0 0 40px rgba(0,112,243,0.6), 0 0 80px rgba(0,229,255,0.4);
+        }
+        
+        .wide-card {
+            grid-column: 1 / -1;
+        }
+        
+        h2 {
+            color: #ffffff;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        p {
+            color: #94a3b8;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        
+        /* ==========================================
+           5. TELEMETRY CHARTS GRAPHICS
+           ========================================== */
+        .charts-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            gap: 25px;
+        }
+        
+        .chart-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .circle-chart {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.7), 0 10px 30px rgba(0,81,255,0.3);
+            transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .circle-chart::before {
+            content: '';
+            position: absolute;
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .chart-value {
+            position: relative;
+            z-index: 2;
+            font-size: 1.4rem;
+            color: #38bdf8;
+            font-weight: 900;
+            font-family: monospace;
+        }
+        
+        .chart-label {
+            margin-top: 16px;
+            font-size: 1rem;
+            color: #e2e8f0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        /* ==========================================
+           6. CUSTOM FORM ELEMENTS BLOCK
+           ========================================== */
         .glass-poly-wrapper {
-            position: relative; margin-bottom: 18px;
+            position: relative;
+            margin-bottom: 22px;
             clip-path: polygon(16px 0%, calc(100% - 16px) 0%, 100% 14px, 100% calc(100% - 14px), calc(100% - 16px) 100%, 16px 100%, 0% calc(100% - 14px), 0% 14px);
-            padding: 2px; background: rgba(255, 255, 255, 0.2);
+            padding: 2px;
+            background: rgba(255, 255, 255, 0.15);
         }
+        
         .glass-poly-wrapper::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: conic-gradient(from 0deg at 50% 50%, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000);
-            z-index: 1; opacity: 0.35; transition: opacity 0.4s ease, transform 0.6s ease;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: conic-gradient(from 0deg at 50% 50%, #00e5ff, #0051ff, #7c3aed, #00e5ff);
+            z-index: 1;
+            opacity: 0.25;
+            transition: opacity 0.4s ease, transform 0.8s ease;
         }
+        
+        .glass-poly-wrapper:hover::before {
+            opacity: 0.85;
+            transform: rotate(180deg);
+        }
+        
         input, textarea, button, select {
-            width: 100%; padding: 14px 22px; border: none; outline: none; font-weight: 700; font-size: 0.95rem; color: #ffffff; position: relative; z-index: 2;
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            outline: none;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #ffffff;
+            position: relative;
+            z-index: 2;
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%);
             clip-path: polygon(15px 0%, calc(100% - 15px) 0%, 100% 13px, 100% calc(100% - 13px), calc(100% - 15px) 100%, 15px 100%, 0% calc(100% - 13px), 0% 13px);
-            transition: all 0.4s ease;
         }
-        .glass-poly-wrapper:hover::before { opacity: 0.95; transform: rotate(180deg); }
-        .glass-poly-wrapper:hover input, .glass-poly-wrapper:hover button, .glass-poly-wrapper:hover select { background: #1e293b; color: #00e5ff; }
 
+        button {
+            cursor: pointer;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(0, 81, 255, 0.3) 100%);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.4) 0%, rgba(0, 81, 255, 0.5) 100%);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+        
+        /* ==========================================
+           7. INTERACTIVE SECURITY SWITCHES
+           ========================================== */
         .toggle-container {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(15, 23, 42, 0.45); padding: 12px 18px; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.55);
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .toggle-container span { font-weight: 700; font-size: 0.95rem; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-container span {
+            font-weight: 700;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
         .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.2);
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.08);
+            transition: .4s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: 34px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .slider::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 0 10px #0051ff; }
-        input:checked + .slider { background-color: #00e5ff; box-shadow: 0 0 15px #00e5ff; }
-        input:checked + .slider::before { transform: translateX(24px); }
+        
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #cbd5e1;
+            transition: .4s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        }
+        
+        input:checked + .slider {
+            background-color: rgba(0, 229, 255, 0.25);
+            border-color: rgba(0, 229, 255, 0.6);
+        }
 
+        input:checked + .slider::before {
+            background-color: #00e5ff;
+            transform: translateX(24px);
+            box-shadow: 0 0 10px #00e5ff;
+        }
+        
+        /* ==========================================
+           8. CORE RESULTS INTERFACE TERMINALS
+           ========================================== */
         .result-box {
-            background: rgba(15, 23, 42, 0.95); padding: 15px; font-family: monospace; color: #00e5ff; font-weight: 700; text-align: center; font-size: 1rem;
+            background: rgba(9, 15, 32, 0.95);
+            padding: 18px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #00e5ff;
+            font-weight: 700;
+            text-align: center;
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            margin-top: 10px;
+            word-break: break-all;
             clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px);
-            border: 1px solid rgba(0, 229, 255, 0.3); word-break: break-all; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        
+        /* ==========================================
+           9. THREAT HUNTER REAL MONITORING TABLE
+           ========================================== */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+        
+        th {
+            color: #94a3b8;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            padding: 10px 16px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 16px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        
+        .net-row td {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.75) 100%);
+            color: #e2e8f0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Network Tables */
-        .table-wrapper { overflow-x: auto; margin-top: 15px; border-radius: 8px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; text-align: left; }
-        th { padding: 14px; color: #ffffff; font-weight: 800; font-size: 0.95rem; }
-        .net-row td {
-            padding: 14px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.7) 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(0, 0, 0, 0.3); color: #e2e8f0; font-weight: 600; transition: all 0.35s ease;
+        .net-row td:first-child {
+            border-left: 1px solid rgba(255,255,255,0.05);
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
         }
-        .net-row td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; clip-path: polygon(12px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 12px); }
-        .net-row td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 12px, 100% 100%, 0% 100%); }
-        .net-row:hover td { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); transform: translateY(-3px); color: #00e5ff; }
-        .badge { padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .badge-safe { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .badge-warning { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        .net-row td:last-child {
+            border-right: 1px solid rgba(255,255,255,0.05);
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .net-row:hover td {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(21, 32, 54, 0.9) 100%);
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+        
+        .badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+        
+        .badge-safe {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.1);
+        }
+        
+        .badge-warning {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 <body>
 
     <div id="zeus-splash">
-        <div class="zeus-logo-wrapper">
-            <div class="zeus-quadrant q-top-left">
-                <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M120 20 L70 70 L90 100 L60 120 L120 120 Z" fill="#eab308" stroke="#facc15" stroke-width="2"/>
-                    <circle cx="100" cy="85" r="5" fill="#ffffff" filter="drop-shadow(0 0 8px #fff)"/>
-                </svg>
-            </div>
-            <div class="zeus-quadrant q-top-right">
-                <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M120 20 L170 70 L150 100 L180 120 L120 120 Z" fill="#eab308" stroke="#facc15" stroke-width="2"/>
-                    <circle cx="140" cy="85" r="5" fill="#ffffff" filter="drop-shadow(0 0 8px #fff)"/>
-                </svg>
-            </div>
-            <div class="zeus-quadrant q-bottom-left">
-                <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M120 120 L60 120 L90 170 L70 190 L120 220 Z" fill="#ca8a04" stroke="#facc15" stroke-width="2"/>
-                </svg>
-            </div>
-            <div class="zeus-quadrant q-bottom-right">
-                <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M120 120 L180 120 L150 170 L170 190 L120 220 Z" fill="#ca8a04" stroke="#facc15" stroke-width="2"/>
-                </svg>
-            </div>
+        <button id="auth-btn" onclick="startZeusSummon()">ACCESS OLYMPUS GATE</button>
+
+        <div class="zeus-cube-3d" id="zeusBox">
+            <div class="zeus-piece p-top-left" id="p1"></div>
+            <div class="zeus-piece p-top-right" id="p2"></div>
+            <div class="zeus-piece p-bottom-left" id="p3"></div>
+            <div class="zeus-piece p-bottom-right" id="p4"></div>
         </div>
         
         <svg class="lightning-blast" id="bolt-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100,5 L125,80 L85,85 L130,195 L70,115 L105,110 Z" fill="#facc15" filter="drop-shadow(0 0 25px #facc15)" />
-            <path d="M40,40 L90,90 L70,95 L140,160 L100,120 L120,115 Z" fill="#eab308" opacity="0.7" />
+            <path d="M100,5 L125,80 L85,85 L130,195 L70,115 L105,110 Z" fill="#facc15" filter="drop-shadow(0 0 35px #facc15)" />
         </svg>
 
-        <div class="splash-title">OLYMPUS DEFENSE GATE</div>
+        <div class="splash-title" id="splashTitle">OLYMPUS DEFENSE GATE</div>
     </div>
 
     <header>
@@ -243,23 +571,23 @@
 
     <div class="container">
         <div class="card">
-            <h2>💎 System Telemetry</h2>
-            <p id="userMeta">Fetching live telemetry data...</p>
+            <h2>💎 System Telemetry Vector</h2>
+            <p id="userMeta">Connecting to kernel architecture socket streams...</p>
             <div class="charts-container">
                 <div class="chart-box">
                     <div class="circle-chart" id="cpuChart"><span class="chart-value" id="cpuVal">0%</span></div>
-                    <span class="chart-label">CPU Load</span>
+                    <span class="chart-label">CPU Core Load</span>
                 </div>
                 <div class="chart-box">
                     <div class="circle-chart" id="ramChart"><span class="chart-value" id="ramVal">0%</span></div>
-                    <span class="chart-label">RAM Usage</span>
+                    <span class="chart-label">RAM Array Allocation</span>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>🔥 Zeus Firewall Active Blocks</h2>
-            <p>Toggle hardware interceptors dynamically to prevent illegal payload relays and scan procedures.</p>
+            <h2>🔥 Zeus Firewall Interceptors</h2>
+            <p>Toggle hardware execution boundaries dynamically to block malicious query relays or network injection triggers.</p>
             <div class="toggle-container">
                 <span>Block Unauthorized Ports</span>
                 <label class="switch"><input type="checkbox" id="fwPort" checked><span class="slider"></span></label>
@@ -269,83 +597,60 @@
                 <label class="switch"><input type="checkbox" id="fwPid"><span class="slider"></span></label>
             </div>
             <div class="toggle-container">
-                <span>DNS Crypt Tunneling</span>
+                <span>DNS Crypt Secure Tunneling</span>
                 <label class="switch"><input type="checkbox" id="fwDns" checked><span class="slider"></span></label>
             </div>
         </div>
 
         <div class="card">
-            <h2>🌈 Zeus Key Gate</h2>
-            <p>Generate cryptographic, high-entropy passwords to block automated brute-force attacks.</p>
+            <h2>🌈 Zeus Entropy Key Gate</h2>
+            <p>Forge high-entropy cryptographic strings locally to defeat algorithmic dictionary attacks.</p>
             <div class="glass-poly-wrapper"><input type="number" id="passLength" value="16" min="6" max="50"></div>
             <div class="glass-poly-wrapper"><button onclick="generatePassword()">Forge Crystal Key</button></div>
-            <div class="result-box" id="passResult">Awaiting sequence...</div>
+            <div class="result-box" id="passResult">Awaiting entropy request...</div>
         </div>
 
         <div class="card">
-            <h2>🛡️ XSS & SQLi Payload Inspector</h2>
-            <p>Paste suspicious parameters or query blocks to run active token heuristics for injection threat tracking.</p>
-            <div class="glass-poly-wrapper"><textarea id="payloadInput" style="height:65px;" placeholder="SELECT * FROM users WHERE... or <script>"></textarea></div>
-            <div class="glass-poly-wrapper"><button onclick="inspectPayload()">Inspect Payload Vector</button></div>
-            <div class="result-box" id="payloadResult">No code vector loaded...</div>
+            <h2>🛡️ Heuristic XSS & SQLi Payload Inspector</h2>
+            <p>Input raw query arguments or script tokens to perform real-time pattern matching signatures.</p>
+            <div class="glass-poly-wrapper"><textarea id="payloadInput" style="height:68px; resize: none;" placeholder="SELECT * FROM node_clusters WHERE index = '1' OR '1'='1'..."></textarea></div>
+            <div class="glass-poly-wrapper"><button onclick="inspectPayload()">Inspect Payload Inclusions</button></div>
+            <div class="result-box" id="payloadResult">No threat matrix loaded...</div>
         </div>
 
         <div class="card">
-            <h2>🌐 Real-Time Web Port Scanner</h2>
-            <p>Enter a target URL/Domain to check active standard web-ports availability dynamically via client handshake.</p>
+            <h2>🌐 Client-Side Web Port Scanner</h2>
+            <p>Map targeted remote network nodes to intercept open protocol ports via async handshake relays.</p>
             <div class="glass-poly-wrapper"><input type="text" id="scanTarget" value="google.com"></div>
-            <div class="glass-poly-wrapper"><button onclick="scanWebPort()">Execute Target Scan</button></div>
-            <div class="result-box" id="scanResult">Scanner standing by...</div>
+            <div class="glass-poly-wrapper"><button onclick="scanWebPort()">Execute Target Mapping</button></div>
+            <div class="result-box" id="scanResult">Scanner terminal initialized...</div>
         </div>
 
         <div class="card">
-            <h2>🔐 Real Cryptographic SHA-256 Forge</h2>
-            <p>Convert any text block into a real, mathematical, irreversible SHA-256 secure hash standard payload.</p>
-            <div class="glass-poly-wrapper"><input type="text" id="hashInput" placeholder="Enter secret data string..."></div>
-            <div class="glass-poly-wrapper"><button onclick="forgeHash()">Generate SHA-256</button></div>
-            <div class="result-box" id="hashResult" style="font-size:0.85rem;">Awaiting input...</div>
-        </div>
-
-        <div class="card">
-            <h2>🌐 Location Masker & Region Shifter</h2>
-            <p>Alter virtual node positions to misdirect trackers and map network relays over secure points.</p>
-            <div class="glass-poly-wrapper">
-                <select id="proxyNode">
-                    <option value="node_de">Node Alpha (Frankfurt, DE) - Secure</option>
-                    <option value="node_ch">Node Beta (Zurich, CH) - Encrypted</option>
-                    <option value="node_is">Node Gamma (Reykjavik, IS) - High-Privacy</option>
-                </select>
-            </div>
-            <div class="glass-poly-wrapper"><button onclick="shiftNode()">Apply Network Mask</button></div>
-            <div class="result-box" id="proxyResult">Masking engine idle...</div>
-        </div>
-
-        <div class="card">
-            <h2>🚨 Threat Intelligence Log</h2>
-            <p>Live status reports tracking suspicious authentication behaviors and systemic abuse markers.</p>
-            <div class="result-box" id="intelLog" style="text-align: left; height: 110px; overflow-y: auto; font-size: 0.85rem; padding: 10px; line-height: 1.5;">
-                [INFO] Honey-pot vectors initialized.<br>
-                [SAFE] No active brute-force markers on local interfaces.
-            </div>
+            <h2>🔐 SHA-256 Payload Encryption Forge</h2>
+            <p>Compute an irreversible 256-bit secure hash output vector utilizing client browser hashing engines.</p>
+            <div class="glass-poly-wrapper"><input type="text" id="hashInput" placeholder="Enter plain-text string..."></div>
+            <div class="glass-poly-wrapper"><button onclick="forgeHash()">Generate SHA-256 Crypt</button></div>
+            <div class="result-box" id="hashResult" style="font-size:0.82rem; padding: 20px 10px;">Awaiting byte buffer input...</div>
         </div>
 
         <div class="card wide-card">
-            <h2>🛡️ Threat Hunter Socket & Live Process Watcher</h2>
-            <p>Active scan over local network interfaces to map active connections and isolate suspicious open ports.</p>
+            <h2>🛡️ Threat Hunter Active Socket Sniffer (Live Kernel Relay)</h2>
+            <p>Real-time telemetry scan across system processes and network interface tables.</p>
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Process Name</th>
-                            <th>PID</th>
-                            <th>Protocol</th>
-                            <th>Local Address</th>
-                            <th>Foreign Address</th>
-                            <th>Risk Level</th>
+                            <th>Active Process Name</th>
+                            <th>PID Identifier</th>
+                            <th>Socket Protocol</th>
+                            <th>Local Host Address</th>
+                            <th>Foreign Node Destination</th>
+                            <th>Risk Vector Evaluation</th>
                         </tr>
                     </thead>
                     <tbody id="netBody">
-                        <tr class="net-row"><td colspan="6" style="text-align: center; color: #cbd5e1;">Analyzing spectrum vectors...</td></tr>
+                        <tr class="net-row"><td colspan="6" style="text-align: center; color: #64748b;">Analyzing spectrum telemetry channels...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -355,88 +660,75 @@
     <script>
         function generatePassword() {
             const length = parseInt(document.getElementById('passLength').value) || 16;
-            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+=-{}[]|:;<>?,./";
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
             let pass = "";
-            for (let i = 0; i < length; i++) pass += charset[Math.floor(Math.random() * charset.length)];
+            for (let i = 0; i < length; i++) {
+                pass += charset[Math.floor(Math.random() * charset.length)];
+            }
             document.getElementById('passResult').innerText = pass;
         }
 
         function inspectPayload() {
             const input = document.getElementById('payloadInput').value.toLowerCase();
             const resultBox = document.getElementById('payloadResult');
-            if(!input) { resultBox.innerText = "Error: Input string empty"; return; }
-            if(input.includes('<script>') || input.includes('onerror') || input.includes('javascript:')) {
-                resultBox.innerHTML = "<span style='color:#f87171;'>[CRITICAL] XSS Vector Detected!</span>";
-            } else if(input.includes('select ') || input.includes('union ') || input.includes("' or '1'='1")) {
-                resultBox.innerHTML = "<span style='color:#f87171;'>[CRITICAL] SQLi Query Detected!</span>";
+            if(!input) { resultBox.innerText = "Error: Text target frame empty"; return; }
+            
+            if(input.includes('<script>') || input.includes('javascript:') || input.includes('onerror=') || input.includes('<img')) {
+                resultBox.innerHTML = "<span style='color:#f87171; text-shadow: 0 0 10px rgba(248,113,113,0.4);'>[CRITICAL THREAT] Cross-Site Scripting (XSS) Token Filtered!</span>";
+            } else if(input.includes('select ') || input.includes('union ') || input.includes('insert ') || input.includes("' or '") || input.includes('--')) {
+                resultBox.innerHTML = "<span style='color:#f87171; text-shadow: 0 0 10px rgba(248,113,113,0.4);'>[CRITICAL THREAT] SQL Query Injection Component Detected!</span>";
             } else {
-                resultBox.innerHTML = "<span style='color:#4ade80;'>[CLEAN] No signatures matched.</span>";
+                resultBox.innerHTML = "<span style='color:#4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.4);'>[VERIFIED CLEAN] Pattern signature anomalies: 0 found.</span>";
             }
         }
 
         function scanWebPort() {
             let target = document.getElementById('scanTarget').value.trim();
             const resultBox = document.getElementById('scanResult');
-            if(!target) { resultBox.innerText = "Target cannot be empty!"; return; }
+            if(!target) return;
             if(!target.startsWith('http')) target = 'https://' + target;
-            resultBox.innerHTML = "<span style='color:#38bdf8;'>Scanning ports...</span>";
+            resultBox.innerHTML = "Mapping protocol handshakes...";
+            
             fetch(target, { mode: 'no-cors' }).then(() => {
-                resultBox.innerHTML = "<span style='color:#4ade80;'>[OPEN] Port 443/80 Active!</span>";
+                resultBox.innerHTML = "<span style='color:#4ade80;'>[NODE OPEN] Port 443/80 Standard Handshake Completed!</span>";
             }).catch(() => {
-                resultBox.innerHTML = "<span style='color:#f87171;'>[CLOSE] Connection Filtered</span>";
+                resultBox.innerHTML = "<span style='color:#f87171;'>[NODE FILTERED] Port Unreachable or Connection Refused.</span>";
             });
         }
 
         async function forgeHash() {
             const msg = document.getElementById('hashInput').value;
             const resultBox = document.getElementById('hashResult');
-            if(!msg) { resultBox.innerText = "Input string empty!"; return; }
+            if(!msg) { resultBox.innerText = "Error: Empty buffer payload"; return; }
+            
             const msgBuffer = new TextEncoder().encode(msg);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            resultBox.innerText = hashHex;
-        }
-
-        function shiftNode() {
-            const node = document.getElementById('proxyNode').options[document.getElementById('proxyNode').selectedIndex].text;
-            document.getElementById('proxyResult').innerHTML = `<span style='color:#4ade80;'>[ROUTED] Connected via ${node}</span>`;
-        }
-
-        function simulateThreatLogs() {
-            const logBox = document.getElementById('intelLog');
-            const events = [
-                "<span style='color:#f87171;'>[WARN] Failed login try on SSH port 22</span>",
-                "<span style='color:#38bdf8;'>[INFO] DNS Crypt rotated handshake keys</span>",
-                "<span style='color:#4ade80;'>[SAFE] Automated firewall drop issued for PID 4092</span>"
-            ];
-            const currentLogs = logBox.innerHTML.split('<br>').slice(-4);
-            currentLogs.push(events[Math.floor(Math.random() * events.length)]);
-            logBox.innerHTML = currentLogs.join('<br>');
-            logBox.scrollTop = logBox.scrollHeight;
+            resultBox.innerText = hashHex.toUpperCase();
         }
 
         function updateData() {
             fetch('/api/system').then(res => res.json()).then(sysData => {
-                document.getElementById('userMeta').innerHTML = `<strong>Telemetry Analyst:</strong> ${sysData.username} | <strong>Kernel:</strong> ${sysData.system}`;
+                document.getElementById('userMeta').innerHTML = `<strong>Telemetry Analyst Identity:</strong> ${sysData.username} &nbsp;|&nbsp; <strong>Kernel Architecture:</strong> ${sysData.system}`;
                 document.getElementById('cpuVal').innerText = sysData.cpu_usage + '%';
-                document.getElementById('cpuChart').style.background = `conic-gradient(#0051ff ${sysData.cpu_usage}%, rgba(255, 255, 255, 0.1) 0%)`;
+                document.getElementById('cpuChart').style.background = `conic-gradient(#0051ff 0%, #00e5ff ${sysData.cpu_usage}%, rgba(255, 255, 255, 0.05) ${sysData.cpu_usage}%)`;
                 document.getElementById('ramVal').innerText = sysData.ram_usage + '%';
-                document.getElementById('ramChart').style.background = `conic-gradient(#00e5ff ${sysData.ram_usage}%, rgba(255, 255, 255, 0.1) 0%)`;
+                document.getElementById('ramChart').style.background = `conic-gradient(#7c3aed 0%, #00e5ff ${sysData.ram_usage}%, rgba(255, 255, 255, 0.05) ${sysData.ram_usage}%)`;
             }).catch(() => {});
 
             fetch('/api/network').then(res => res.json()).then(netData => {
                 let html = '';
                 if (!netData.error) {
                     netData.forEach(c => {
-                        let badgeHtml = `<span class="badge badge-safe">Safe</span>`;
-                        if (c.is_suspicious) badgeHtml = `<span class="badge badge-warning">Risk: ${c.risk_reason}</span>`;
+                        let badgeHtml = `<span class="badge badge-safe">Verified Safe</span>`;
+                        if (c.is_suspicious) badgeHtml = `<span class="badge badge-warning">High Risk Vector</span>`;
                         html += `<tr class="net-row">
-                            <td style="font-weight:700; color:#38bdf8;">${c.process_name}</td>
-                            <td>${c.pid}</td>
-                            <td style="color:#00e5ff; font-weight:600;">${c.type}</td>
-                            <td>${c.local_address}</td>
-                            <td>${c.foreign_address}</td>
+                            <td style="color:#38bdf8; font-weight:800; font-family: monospace;">${c.process_name}</td>
+                            <td style="font-weight: 700;">${c.pid}</td>
+                            <td style="color:#cbd5e1; font-weight:600;">${c.type}</td>
+                            <td style="font-family: monospace; color:#a7f3d0;">${c.local_address}</td>
+                            <td style="font-family: monospace; color:#fbcfe8;">${c.foreign_address}</td>
                             <td>${badgeHtml}</td>
                         </tr>`;
                     });
@@ -445,32 +737,35 @@
             }).catch(() => {});
         }
 
-        window.onload = () => {
-            updateData();
-            setInterval(updateData, 3000);
-            setInterval(simulateThreatLogs, 5000);
+        function startZeusSummon() {
+            document.getElementById('auth-btn').style.display = 'none';
+            document.getElementById('zeusBox').style.display = 'block';
+            document.getElementById('splashTitle').style.display = 'block';
 
-            // ایجاد آبجکت صوتی برای صدای رعد و برق واقعی
-            const thunderAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/1657/1657-84.wav');
-            thunderAudio.volume = 0.8;
+            document.getElementById('p1').classList.add('animate-p1');
+            document.getElementById('p2').classList.add('animate-p2');
+            document.getElementById('p3').classList.add('animate-p3');
+            document.getElementById('p4').classList.add('animate-p4');
 
-            // لحظه دقیق چسبیدن ۴ تکه و رخداد انفجار بعد از ۱.۴ ثانیه
+            const thunderAudio = new Audio('/static/thunder.mp3');
+            thunderAudio.volume = 1.0;
+
             setTimeout(() => {
                 document.getElementById('bolt-svg').classList.add('blast-active');
                 document.getElementById('zeus-splash').classList.add('flash-bg');
-                
-                // پخش صدا همگام با رعد و برق
-                thunderAudio.play().catch(() => {
-                    console.log("Audio playback requires user interaction check.");
-                });
-            }, 1400);
+                thunderAudio.play();
+            }, 1450);
 
-            // انتقال روان به صفحه اصلی
             setTimeout(() => {
                 const splash = document.getElementById('zeus-splash');
                 splash.style.opacity = '0';
                 splash.style.pointerEvents = 'none';
-            }, 4000);
+            }, 4600);
+        }
+
+        window.onload = () => {
+            updateData();
+            setInterval(updateData, 3000);
         };
     </script>
 </body>
